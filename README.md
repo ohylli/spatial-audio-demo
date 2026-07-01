@@ -13,8 +13,7 @@ Each cue can be toggled on and off independently, and every computed value is
 shown on screen and announced to a screen reader, so you can hear exactly what
 each cue contributes and read the numbers driving it.
 
-**[Try the live demo →](https://example.github.io/audio-distance-demo/)**
-*(placeholder — update once the repo is published to GitHub Pages)*
+**[Try the live demo →](https://ohylli.github.io/spatial-audio-demo/)**
 
 ## Why this exists
 
