@@ -130,6 +130,15 @@ component) rather than raw dy keeps this distance-independent and consistent wit
 if you later want occlusion to feel more binary, mapping raw dy is a reasonable alternative
 to expose as a variant.
 
+Both mappings now ship as a runtime toggle ("Low-pass: raw mode", key `5`). The raw variant
+is `cutoffFromDy(dy)` in `spatial.js`: it maps raw vertical offset `dy` (ignoring distance)
+so the muffling depends only on how far below the target sits, with no left/right influence.
+It reaches cutoffMin at `dy <= -cutoffRawFullDepth` (default 15 world units) and stays bright
+for `dy >= 0`. `computeSpatial` returns both `cutoffHz` (angle) and `cutoffRawHz` (raw); the
+consumers (`audio.js`, the readout, the announcement) select which is active from the toggle,
+so the angle-vs-distance trade-off can be A/B compared live. The raw sub-mode only affects the
+sound while the low-pass cue itself is on.
+
 ### Optional extra distance cue: pulse rate
 
 Strongly recommended and very game-like. If the source is pulsed (see below), map pulse

@@ -11,6 +11,7 @@ export const DEFAULTS = {
   speedOfSound: 343,
   cutoffMin: 600,
   cutoffMax: 18000,
+  cutoffRawFullDepth: 15,
   epsilon: 1e-4,
 };
 
@@ -66,8 +67,21 @@ export function cutoffFromUy(uy, config = DEFAULTS) {
   return cutoffMin + t * (cutoffMax - cutoffMin);
 }
 
+// Raw vertical offset (dy, world units) -> low-pass cutoff. Unlike cutoffFromUy
+// this ignores distance, so the muffling depends only on how far below the
+// player the target is, not on the elevation angle (no left/right influence).
+// Only the below-player half (dy < 0) muffles; dy >= 0 stays fully bright.
+// Full muffle at dy <= -cutoffRawFullDepth.
+// => cutoffHz (number)
+export function cutoffFromDy(dy, config = DEFAULTS) {
+  const { cutoffMin, cutoffMax, cutoffRawFullDepth } = config;
+  const depth = clamp(-dy, 0, cutoffRawFullDepth); // 0 (at/above) .. full below
+  const t = 1 - depth / cutoffRawFullDepth; // 1 bright (dy>=0) .. 0 muffled
+  return cutoffMin + t * (cutoffMax - cutoffMin);
+}
+
 // Full spatial solution for a player/target pair.
-// => { dx, dy, distance, ux, uy, gainDb, gainLinear, pan, theta, itdSeconds, cutoffHz }
+// => { dx, dy, distance, ux, uy, gainDb, gainLinear, pan, theta, itdSeconds, cutoffHz, cutoffRawHz }
 export function computeSpatial(player, target, config = DEFAULTS) {
   const { dx, dy, distance } = offsets(player, target);
 
@@ -86,6 +100,7 @@ export function computeSpatial(player, target, config = DEFAULTS) {
       theta: 0,
       itdSeconds: 0,
       cutoffHz: config.cutoffMax,
+      cutoffRawHz: config.cutoffMax,
     };
   }
 
@@ -95,6 +110,7 @@ export function computeSpatial(player, target, config = DEFAULTS) {
   const { gainDb, gainLinear } = distanceGain(distance, config);
   const { theta, itdSeconds } = computeItd(ux, config);
   const cutoffHz = cutoffFromUy(uy, config);
+  const cutoffRawHz = cutoffFromDy(dy, config);
 
   return {
     dx,
@@ -108,5 +124,6 @@ export function computeSpatial(player, target, config = DEFAULTS) {
     theta,
     itdSeconds,
     cutoffHz,
+    cutoffRawHz,
   };
 }

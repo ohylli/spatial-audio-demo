@@ -12,7 +12,7 @@
 //   o -> onAnnounceOffset()     b -> onAnnounceBearing()
 //   v -> onAnnounceValues()
 //   1 -> onToggle('panning')    2 -> onToggle('itd')    3 -> onToggle('lowpass')
-//   4 -> onToggle('pulse')
+//   4 -> onToggle('pulse')      5 -> onToggle('lowpassRaw')
 //   Enter / Space -> onStart()
 
 // Normalize a KeyboardEvent to a lookup id: letters lowercased, everything else
@@ -40,6 +40,7 @@ const TOGGLE_KEYS = {
   2: 'itd',
   3: 'lowpass',
   4: 'pulse',
+  5: 'lowpassRaw',
 };
 
 function clampUnit(n) {

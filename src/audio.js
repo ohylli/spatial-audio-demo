@@ -187,8 +187,11 @@ export function createAudioEngine() {
       leftDelay.delayTime.setTargetAtTime(Math.max(0, ld), now, SMOOTH_TC);
       rightDelay.delayTime.setTargetAtTime(Math.max(0, rd), now, SMOOTH_TC);
 
-      // Vertical -> low-pass cutoff. Off => open (~cutoffMax).
-      const cutoff = lowpassOn ? spatial.cutoffHz : CUTOFF_OPEN;
+      // Vertical -> low-pass cutoff. Off => open (~cutoffMax). The lowpassRaw
+      // sub-mode swaps the angle-based mapping (uy) for the raw vertical-offset
+      // one (dy); it only matters while the low-pass cue itself is on.
+      const activeCutoff = toggles.lowpassRaw ? spatial.cutoffRawHz : spatial.cutoffHz;
+      const cutoff = lowpassOn ? activeCutoff : CUTOFF_OPEN;
       lowpass.frequency.setTargetAtTime(cutoff, now, SMOOTH_TC);
 
       // Optional proximity cue: closer (louder) => faster pulse rate.

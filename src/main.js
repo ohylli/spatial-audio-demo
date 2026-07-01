@@ -33,6 +33,7 @@ const toggleEls = {
   panning: document.getElementById('toggle-panning'),
   itd: document.getElementById('toggle-itd'),
   lowpass: document.getElementById('toggle-lowpass'),
+  lowpassRaw: document.getElementById('toggle-lowpass-raw'),
   pulse: document.getElementById('toggle-pulse'),
 };
 
@@ -58,6 +59,7 @@ const toggles = {
   panning: toggleEls.panning.checked,
   itd: toggleEls.itd.checked,
   lowpass: toggleEls.lowpass.checked,
+  lowpassRaw: toggleEls.lowpassRaw.checked,
   pulse: toggleEls.pulse.checked,
 };
 
@@ -105,6 +107,7 @@ const CUE_LABELS = {
   panning: 'Panning',
   itd: 'ITD',
   lowpass: 'Low-pass filter',
+  lowpassRaw: 'Low-pass raw mode',
   pulse: 'Pulse rate',
 };
 
@@ -145,13 +148,19 @@ function announceBearing() {
   );
 }
 
+// The cutoff actually being heard depends on the low-pass mode: raw mode uses
+// the distance-independent dy mapping, otherwise the angle-based uy mapping.
+function activeCutoff(s) {
+  return toggles.lowpassRaw ? s.cutoffRawHz : s.cutoffHz;
+}
+
 function announceValues() {
   const itdUs = Math.round(latest.itdSeconds * 1e6);
   announcer.announce(
     `Gain ${latest.gainDb.toFixed(1)} decibels. ` +
       `Pan ${latest.pan.toFixed(2)}. ` +
       `ITD ${itdUs} microseconds. ` +
-      `Cutoff ${Math.round(latest.cutoffHz)} hertz.`
+      `Cutoff ${Math.round(activeCutoff(latest))} hertz.`
   );
 }
 
@@ -164,7 +173,7 @@ function updateReadout(s) {
   valEls.gain.textContent = `${s.gainDb.toFixed(1)} dB`;
   valEls.pan.textContent = s.pan.toFixed(2);
   valEls.itd.textContent = `${Math.round(s.itdSeconds * 1e6)} us`;
-  valEls.cutoff.textContent = `${Math.round(s.cutoffHz)} Hz`;
+  valEls.cutoff.textContent = `${Math.round(activeCutoff(s))} Hz`;
 }
 
 // --- Input wiring -----------------------------------------------------------
