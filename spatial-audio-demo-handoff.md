@@ -115,8 +115,13 @@ Map uy to a low-pass cutoff frequency. At or above the player (uy >= 0) the soun
 bright; below the player it gets progressively muffled.
 
     // uy in [-1, 1]; below player is uy < 0
-    // brightest at uy = +1, most muffled at uy = -1
-    cutoff_Hz = map uy from [-1, 1] to [cutoffMin, cutoffMax]
+    // at or above the player (uy >= 0) the sound is fully bright;
+    // below the player it muffles progressively toward uy = -1
+    cutoff_Hz = map clamp(uy, -1, 0) from [-1, 0] to [cutoffMin, cutoffMax]
+
+Map only the below-player half of uy and clamp uy >= 0 to cutoffMax, so a purely horizontal
+target (uy = 0, directly left/right) stays fully bright and does not muddy the horizontal
+cue. Only sources below the player attenuate high frequencies.
 
 Suggested starting values: cutoffMax around 18000 Hz (effectively open) and cutoffMin
 around 600 Hz (clearly muffled). A linear map on uy is fine to start; you may prefer to map
@@ -144,9 +149,29 @@ The model maps almost one-to-one onto native nodes. Suggested graph:
 
 Notes:
 
-- If you prefer to keep the whole left-right story in one place, replace the
-  StereoPannerNode with two GainNodes (one per channel, constant-power) and do ILD and ITD
-  together in the split/merge stage. Either approach is fine; pick one and be consistent.
+- Prefer hand-rolled ILD when ITD is in the graph. A StereoPannerNode placed *after* the
+  ITD split/merge stage receives a stereo signal, and for stereo input the panner partially
+  mixes left into right (and vice versa) rather than just attenuating. That re-mixing smears
+  the channel separation the ITD stage just created. So when ITD is active, do ILD by hand:
+  replace the StereoPannerNode with two GainNodes (one per channel, constant-power) and do
+  ILD and ITD together in the split/merge stage. The native StereoPannerNode is only clean
+  while the signal is still mono (ITD off); treat "hand-rolled ILD+ITD in one stage" as the
+  default and the native panner as the ITD-off variant.
+- Mono source into a ChannelSplitter drops a channel. ChannelSplitterNode uses discrete
+  channel interpretation, so a mono source feeds channel 0 and leaves channel 1 silent —
+  meaning one ear would delay silence. Before the splitter, force the signal onto both
+  channels: set the splitter's input node channelCount to 2 with channelCountMode "explicit"
+  and channelInterpretation "speakers" (so mono up-mixes to both), or fan the mono into both
+  merger inputs explicitly. Verify both ears carry audio before wiring the delays.
+- DelayNode cannot go negative; bias it to ramp through zero. delayTime is clamped to >= 0,
+  so you cannot swap which ear lags by flipping a single delay through zero without a click.
+  Give both ears a base delay and modulate around it:
+
+      leftDelay  = base + ITD/2
+      rightDelay = base - ITD/2      // base >= maxITD/2 keeps both >= 0
+
+  Construct each DelayNode with maxDelayTime comfortably above base + maxITD/2, and ramp
+  leftDelay/rightDelay (see smoothing below) so the lagging ear switches smoothly at center.
 - DelayNode interpolates fractional delays. At 44.1 kHz one sample is about 22.7 us and max
   ITD is about 660 us, giving roughly 30 samples of resolution, which is plenty.
 
@@ -170,7 +195,8 @@ continuous sound, but pulsed localizes better and is more informative.
   matters more here than in a normal game because the sound is the whole point.
 - ITD sign-flip at center: when the target crosses from one side to the other, the lagging
   ear switches. A naive hard swap of which channel is delayed clicks exactly at the moment
-  localization matters most. Keep both delay lines present and ramp the delay difference
+  localization matters most. Use the base-delay bias from the audio notes above (leftDelay =
+  base + ITD/2, rightDelay = base - ITD/2) and ramp both delayTimes so the difference glides
   smoothly through zero rather than swapping instantly.
 
 ## Interaction, readout, and accessibility
