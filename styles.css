@@ -120,16 +120,38 @@ legend {
 }
 
 .cue-toggles label {
-  display: block;
-  padding: 0.35rem 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 0.5rem;
+  padding: 0.5rem 0;
   cursor: pointer;
 }
 
+/* Divider between toggles so each reads (and looks) like its own block. */
+.cue-toggles label + label {
+  border-top: 1px solid var(--border);
+}
+
+.cue-name {
+  grid-column: 2;
+  grid-row: 1;
+  font-weight: 600;
+}
+
+/* Description drops to its own line under the name, checkbox stays aligned. */
+.cue-desc {
+  grid-column: 2;
+  grid-row: 2;
+  font-size: 0.85em;
+  opacity: 0.85;
+}
+
 .cue-toggles input[type="checkbox"] {
+  grid-column: 1;
+  grid-row: 1;
   width: 1.15rem;
   height: 1.15rem;
-  margin-right: 0.5rem;
-  vertical-align: middle;
   accent-color: var(--accent);
 }
 
