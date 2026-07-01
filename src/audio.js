@@ -34,6 +34,9 @@ const CUTOFF_OPEN = DEFAULTS.cutoffMax; // lowpass-off / neutral cutoff (~18 kHz
 // Pulse-rate (proximity) mapping: closer (louder) -> faster blips.
 const PULSE_MIN_INTERVAL = 0.12; // s, when right on top of the target.
 const PULSE_MAX_INTERVAL = 0.7;  // s, at the far/quiet edge.
+// Fixed rate used when the pulse-rate cue is toggled off: still pulsed (pulsing
+// aids localization) but distance-independent, so it conveys no proximity.
+const PULSE_STEADY_INTERVAL = 0.35; // s.
 const PULSE_ATTACK = 0.004;      // s.
 const PULSE_DECAY = 0.06;        // s.
 const PULSE_PEAK = 0.9;
@@ -189,9 +192,14 @@ export function createAudioEngine() {
       lowpass.frequency.setTargetAtTime(cutoff, now, SMOOTH_TC);
 
       // Optional proximity cue: closer (louder) => faster pulse rate.
-      const gl = Math.max(0, Math.min(1, spatial.gainLinear));
-      pulseInterval =
-        PULSE_MIN_INTERVAL + (1 - gl) * (PULSE_MAX_INTERVAL - PULSE_MIN_INTERVAL);
+      // Off => a fixed steady rate that carries no distance information.
+      if (toggles.pulse !== false) {
+        const gl = Math.max(0, Math.min(1, spatial.gainLinear));
+        pulseInterval =
+          PULSE_MIN_INTERVAL + (1 - gl) * (PULSE_MAX_INTERVAL - PULSE_MIN_INTERVAL);
+      } else {
+        pulseInterval = PULSE_STEADY_INTERVAL;
+      }
     },
 
     // Not part of the required contract, but handy for teardown/testing.

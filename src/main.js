@@ -33,6 +33,7 @@ const toggleEls = {
   panning: document.getElementById('toggle-panning'),
   itd: document.getElementById('toggle-itd'),
   lowpass: document.getElementById('toggle-lowpass'),
+  pulse: document.getElementById('toggle-pulse'),
 };
 
 const valEls = {
@@ -57,6 +58,7 @@ const toggles = {
   panning: toggleEls.panning.checked,
   itd: toggleEls.itd.checked,
   lowpass: toggleEls.lowpass.checked,
+  pulse: toggleEls.pulse.checked,
 };
 
 // Latest spatial solution, kept for the announcement shortcuts.
@@ -103,6 +105,7 @@ const CUE_LABELS = {
   panning: 'Panning',
   itd: 'ITD',
   lowpass: 'Low-pass filter',
+  pulse: 'Pulse rate',
 };
 
 function announceToggle(cueName, on) {
