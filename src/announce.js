@@ -9,16 +9,22 @@
 //   re-reads it (clear then set on the next tick).
 export function createAnnouncer(liveRegionEl) {
   let pending = null;
+  // Toggles every announcement so that re-announcing the *same* text (e.g. the
+  // user presses the offset key again without moving) still changes the live
+  // region's content. Screen readers only speak a live region when its text
+  // actually changes; blanking-then-setting is coalesced by some readers, so we
+  // also flip an invisible trailing marker to guarantee a difference. A
+  // zero-width space is not rendered on screen and not spoken by screen readers.
+  let toggle = false;
 
   function announce(text) {
     if (!liveRegionEl) return;
 
-    const message = String(text);
+    toggle = !toggle;
+    const message = String(text) + (toggle ? '​' : '');
 
-    // Clear first so that announcing the same (or similar) text twice in a row
-    // still triggers a fresh screen-reader read. Some screen readers only
-    // re-announce when the live region's text content actually changes, so we
-    // blank it and set the new value on the next tick.
+    // Clear first as well, so readers that DO re-read on any mutation get a
+    // clean fresh read rather than a diff of the previous string.
     liveRegionEl.textContent = '';
 
     if (pending !== null) {
