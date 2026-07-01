@@ -64,11 +64,21 @@ let latest = computeSpatial(world.player, world.target);
 
 // --- Actions ----------------------------------------------------------------
 
-async function doStart() {
+// Start/stop the audio engine, toggling on each activation of the button or
+// Enter/Space. Keeps the button label, status text, and announcement in sync.
+async function toggleAudio() {
+  if (engine.isRunning) {
+    engine.stop();
+    startStatus.textContent = 'Audio stopped';
+    startBtn.textContent = 'Start audio';
+    announcer.announce('Audio stopped');
+    return;
+  }
+
   try {
     await engine.start();
     startStatus.textContent = 'Audio running';
-    startBtn.textContent = 'Audio running';
+    startBtn.textContent = 'Stop audio';
     announcer.announce('Audio started');
   } catch (err) {
     startStatus.textContent = 'Audio failed to start';
@@ -157,14 +167,14 @@ function updateReadout(s) {
 // --- Input wiring -----------------------------------------------------------
 
 const input = setupInput(canvas, {
-  onStart: doStart,
+  onStart: toggleAudio,
   onToggle: toggleCue,
   onAnnounceOffset: announceOffset,
   onAnnounceBearing: announceBearing,
   onAnnounceValues: announceValues,
 });
 
-startBtn.addEventListener('click', doStart);
+startBtn.addEventListener('click', toggleAudio);
 
 for (const cueName of Object.keys(toggleEls)) {
   toggleEls[cueName].addEventListener('change', (e) => {
