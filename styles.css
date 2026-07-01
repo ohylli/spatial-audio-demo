@@ -1,0 +1,210 @@
+/* styles.css — high-contrast styling for the spatial audio demo.
+   Respects prefers-color-scheme and prefers-contrast. The ARIA live region
+   is visually hidden but available to screen readers. */
+
+:root {
+  --bg: #ffffff;
+  --fg: #101010;
+  --accent: #0050b3;
+  --panel: #f2f2f2;
+  --border: #101010;
+  --kbd-bg: #e8e8e8;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000000;
+    --fg: #ffffff;
+    --accent: #4dd2ff;
+    --panel: #121212;
+    --border: #ffffff;
+    --kbd-bg: #1e1e1e;
+  }
+}
+
+/* Extra emphasis when the user asks for more contrast. */
+@media (prefers-contrast: more) {
+  :root {
+    --panel: var(--bg);
+    --border: var(--fg);
+  }
+  * {
+    outline-color: var(--fg);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 1.5rem;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 18px;
+  line-height: 1.5;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+h1 {
+  font-size: 1.8rem;
+  margin: 0 0 0.5rem;
+}
+
+h2 {
+  font-size: 1.25rem;
+  margin: 0 0 0.75rem;
+}
+
+.intro {
+  max-width: 60ch;
+}
+
+main {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+section {
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem;
+}
+
+.controls,
+.readout,
+.help {
+  flex: 1 1 280px;
+  min-width: 260px;
+}
+
+.world {
+  flex: 0 0 auto;
+}
+
+/* Interactive controls: large, high-contrast, clearly focusable. */
+button {
+  font: inherit;
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  background: var(--accent);
+  color: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  filter: brightness(1.1);
+}
+
+.status {
+  margin-left: 0.75rem;
+  font-weight: 600;
+}
+
+fieldset {
+  margin-top: 1rem;
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+}
+
+legend {
+  font-weight: 700;
+  padding: 0 0.4rem;
+}
+
+.cue-toggles label {
+  display: block;
+  padding: 0.35rem 0;
+  cursor: pointer;
+}
+
+.cue-toggles input[type="checkbox"] {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+  accent-color: var(--accent);
+}
+
+/* Strong, obvious focus indicator for keyboard users. */
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+canvas {
+  display: block;
+  width: 600px;
+  max-width: 100%;
+  height: auto;
+  background: var(--bg);
+  border: 3px solid var(--border);
+  border-radius: 4px;
+}
+
+/* Live value readout: large, high-contrast, monospace numbers. */
+.values {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.25rem;
+}
+
+.values > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.values dt {
+  font-weight: 600;
+}
+
+.values dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+
+.help ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.help li {
+  margin: 0.35rem 0;
+}
+
+kbd {
+  font-family: ui-monospace, Consolas, monospace;
+  background: var(--kbd-bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0.05rem 0.4rem;
+  font-size: 0.9em;
+}
+
+/* Visually hidden but available to assistive tech (for the live region). */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

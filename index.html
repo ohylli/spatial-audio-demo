@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spatial Audio Accessibility Demo</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Spatial Audio Accessibility Demo</h1>
+    <p class="intro">
+      Move the player toward the target using arrow keys or WASD. Distance sets
+      loudness, left/right sets panning and inter-aural time difference (ITD),
+      and up/down sets a low-pass filter. Each cue can be toggled on or off.
+    </p>
+  </header>
+
+  <main>
+    <section aria-labelledby="controls-heading" class="controls">
+      <h2 id="controls-heading">Controls</h2>
+
+      <p>
+        <button id="start-btn" type="button">Start audio</button>
+        <span id="start-status" class="status" role="status">Audio stopped</span>
+      </p>
+
+      <fieldset class="cue-toggles">
+        <legend>Spatial cues</legend>
+        <label>
+          <input type="checkbox" id="toggle-panning" checked />
+          Panning / ILD (left-right level)
+        </label>
+        <label>
+          <input type="checkbox" id="toggle-itd" checked />
+          ITD (left-right time delay)
+        </label>
+        <label>
+          <input type="checkbox" id="toggle-lowpass" checked />
+          Low-pass filter (up bright / down muffled)
+        </label>
+      </fieldset>
+    </section>
+
+    <section aria-labelledby="world-heading" class="world">
+      <h2 id="world-heading">World</h2>
+      <canvas
+        id="world-canvas"
+        width="600"
+        height="600"
+        tabindex="0"
+        role="application"
+        aria-label="2D world. Player and target positions. Use arrow keys or WASD to move the player. Press D for offset, B for bearing, V for raw values."
+      ></canvas>
+    </section>
+
+    <section aria-labelledby="readout-heading" class="readout">
+      <h2 id="readout-heading">Live values</h2>
+      <dl class="values">
+        <div><dt>Distance</dt><dd id="val-distance">0.0</dd></div>
+        <div><dt>dx (right +)</dt><dd id="val-dx">0.0</dd></div>
+        <div><dt>dy (up +)</dt><dd id="val-dy">0.0</dd></div>
+        <div><dt>Gain</dt><dd id="val-gain">0.0 dB</dd></div>
+        <div><dt>Pan</dt><dd id="val-pan">0.00</dd></div>
+        <div><dt>ITD</dt><dd id="val-itd">0 us</dd></div>
+        <div><dt>Cutoff</dt><dd id="val-cutoff">0 Hz</dd></div>
+      </dl>
+    </section>
+
+    <section aria-labelledby="help-heading" class="help">
+      <h2 id="help-heading">Keyboard help</h2>
+      <p>Click or tab to the world, then:</p>
+      <ul>
+        <li><kbd>Arrow keys</kbd> or <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> — move the player</li>
+        <li><kbd>D</kbd> — announce offset (also moves right)</li>
+        <li><kbd>B</kbd> — announce bearing</li>
+        <li><kbd>V</kbd> — announce raw audio values</li>
+        <li><kbd>1</kbd> / <kbd>2</kbd> / <kbd>3</kbd> — toggle panning / ITD / low-pass</li>
+        <li><kbd>Enter</kbd> or <kbd>Space</kbd> — start audio</li>
+      </ul>
+    </section>
+  </main>
+
+  <!-- Visually hidden ARIA live region for screen-reader announcements. -->
+  <div id="live-region" class="visually-hidden" aria-live="polite" role="status"></div>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
