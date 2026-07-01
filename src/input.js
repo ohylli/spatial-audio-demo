@@ -9,14 +9,10 @@
 //   ArrowRight / d  -> +x
 //
 // Shortcut keys (fire once per fresh keydown, auto-repeat ignored):
-//   d -> onAnnounceOffset()     b -> onAnnounceBearing()
+//   o -> onAnnounceOffset()     b -> onAnnounceBearing()
 //   v -> onAnnounceValues()
 //   1 -> onToggle('panning')    2 -> onToggle('itd')    3 -> onToggle('lowpass')
 //   Enter / Space -> onStart()
-//
-// Note on the 'd' overlap: 'd' is both WASD move-right (while held) and the
-// suggested "announce offset" shortcut. We honor both — holding/ tapping 'd'
-// moves right, and each fresh (non-repeat) press also announces the offset.
 
 // Normalize a KeyboardEvent to a lookup id: letters lowercased, everything else
 // (ArrowUp, Enter, digits, ' ') left as event.key.
@@ -71,7 +67,7 @@ export function setupInput(targetEl, handlers = {}) {
 
     // One-shot shortcuts: ignore auto-repeat so holding a key fires once.
     if (!event.repeat) {
-      if (id === 'd') {
+      if (id === 'o') {
         call('onAnnounceOffset');
         handled = true;
       } else if (id === 'b') {
