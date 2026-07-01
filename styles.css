@@ -86,6 +86,21 @@ section {
   flex: 0 0 auto;
 }
 
+/* Full-width explanatory section below the interactive panels. */
+.about {
+  margin-top: 1.5rem;
+  max-width: 70ch;
+}
+
+.about h3 {
+  font-size: 1.05rem;
+  margin: 1.25rem 0 0.35rem;
+}
+
+.about a {
+  color: var(--accent);
+}
+
 /* Interactive controls: large, high-contrast, clearly focusable. */
 button {
   font: inherit;

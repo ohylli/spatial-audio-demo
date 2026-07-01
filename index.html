@@ -94,6 +94,65 @@
     </section>
   </main>
 
+  <section aria-labelledby="about-heading" class="about">
+    <h2 id="about-heading">How it works</h2>
+
+    <p>
+      This is a small teaching demo of a spatial-audio model built for
+      accessibility. It came out of an accessibility-modding discussion: a
+      player of a 2D game could not judge distance to enemies from sound alone
+      and asked for logarithmic distance dropoff. The fix decomposes localization
+      into three independent axes, because the ear judges each direction from
+      different information. Each axis drives a different psychoacoustic cue, and
+      each cue can be toggled on and off so you can hear exactly what it adds.
+    </p>
+
+    <h3>Distance → loudness (logarithmic)</h3>
+    <p>
+      How far away the target is sets its overall loudness. Loudness perception is
+      roughly logarithmic, which is why we measure sound in decibels. A naive
+      linear falloff crams almost all the audible change into the last stretch
+      near maximum range, leaving the middle of the range flat and unjudgeable. A
+      decibel curve makes equal <em>ratios</em> of distance feel like equal
+      loudness steps, so the whole range stays usable.
+    </p>
+
+    <h3>Left–right → panning + time delay</h3>
+    <p>
+      Horizontal position is encoded two ways at once. Stereo panning (an
+      inter-aural <em>level</em> difference) on its own is a fairly weak and
+      sometimes ambiguous side cue. Adding an inter-aural <em>time</em>
+      difference (ITD) — the tiny delay before a sound reaches the far ear —
+      makes left–right placement much more solid. Together, level and timing are
+      the classic duplex theory of localization.
+    </p>
+
+    <h3>Up–down → low-pass filter (brightness)</h3>
+    <p>
+      Panning carries nothing vertical, so up/down needs its own cue. Real
+      elevation perception relies partly on how the outer ear filters sound:
+      lower sources tend to lose high-frequency energy and sound duller. Tying a
+      low-pass filter to vertical position gives a "bright = up, muffled = down"
+      axis. In a game this doubles as a rough occlusion cue — something below you
+      is often literally underground.
+    </p>
+
+    <p>
+      Altogether it is a lightweight, hand-rolled approximation of binaural
+      spatialization built from cheap DSP primitives, with every cue exposed as
+      an independently tunable knob. That decomposition is the point, and it has
+      a practical benefit for accessibility: each cue can be exaggerated beyond
+      physical realism for clarity. Every computed value is shown in the live
+      readout and announced to your screen reader.
+    </p>
+
+    <p>
+      For the full psychoacoustic model, the math, and the code, see the
+      <a href="https://github.com/ottohylli/audio-distance-demo">GitHub
+      repository</a>.
+    </p>
+  </section>
+
   <!-- Visually hidden ARIA live region for screen-reader announcements. -->
   <div id="live-region" class="visually-hidden" aria-live="polite" role="status"></div>
 
