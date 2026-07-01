@@ -109,6 +109,12 @@ Max ITD is about 0.00066 s (0.66 ms) when the target is directly to one side (th
 Sign of theta (and therefore ux) selects which ear lags: the ear on the far side from the
 target is the delayed one.
 
+Because this is a decomposed model with no full HRTF behind the delay, that physical
+0.66 ms is perceptually faint in isolation. A UI-tunable exaggeration factor
+(`itdExaggeration`, default 1) multiplies the computed ITD so a listener can scale the cue
+up until it is clearly audible; at 1 the value stays physically accurate. Keep it well below
+~15x so the per-ear delay bias (base +/- ITD/2, base = 5 ms) never clamps at zero.
+
 ### 3. Vertical (uy) -> low-pass cutoff
 
 Map uy to a low-pass cutoff frequency. At or above the player (uy >= 0) the sound is fully

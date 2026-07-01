@@ -13,6 +13,7 @@
 //   v -> onAnnounceValues()
 //   1 -> onToggle('panning')    2 -> onToggle('itd')    3 -> onToggle('lowpass')
 //   4 -> onToggle('pulse')      5 -> onToggle('lowpassRaw')
+//   [ -> onAdjustItdExag(-1)    ] -> onAdjustItdExag(+1)   (auto-repeat allowed)
 //   Enter / Space -> onStart()
 
 // Normalize a KeyboardEvent to a lookup id: letters lowercased, everything else
@@ -43,6 +44,13 @@ const TOGGLE_KEYS = {
   5: 'lowpassRaw',
 };
 
+// key id -> ITD-exaggeration step direction. Auto-repeat is allowed for these so
+// holding the key ramps the factor.
+const ADJUST_KEYS = {
+  '[': -1,
+  ']': 1,
+};
+
 function clampUnit(n) {
   if (n > 0) return 1;
   if (n < 0) return -1;
@@ -65,6 +73,13 @@ export function setupInput(targetEl, handlers = {}) {
     // Movement: track held state (works even while the browser auto-repeats).
     if (MOVE_KEYS[id]) {
       held.add(id);
+      handled = true;
+    }
+
+    // ITD-exaggeration adjust: fire on every keydown INCLUDING auto-repeat so
+    // holding the key ramps the factor smoothly.
+    if (ADJUST_KEYS[id] !== undefined) {
+      call('onAdjustItdExag', ADJUST_KEYS[id]);
       handled = true;
     }
 

@@ -53,6 +53,26 @@
           <span class="cue-desc">faster blips when closer</span>
         </label>
       </fieldset>
+
+      <fieldset class="itd-tuning">
+        <legend>ITD tuning</legend>
+        <label for="itd-exag">
+          <span class="cue-name">Exaggeration factor</span>
+          <span class="cue-desc">
+            1× = physically accurate; raise to hear the effect (or use
+            <kbd>[</kbd> / <kbd>]</kbd> in the world)
+          </span>
+        </label>
+        <input
+          type="range"
+          id="itd-exag"
+          min="0.25"
+          max="10"
+          step="0.25"
+          value="1"
+        />
+        <output id="val-itd-exag" for="itd-exag">1.00×</output>
+      </fieldset>
     </section>
 
     <section aria-labelledby="world-heading" class="world">
@@ -63,7 +83,7 @@
         height="600"
         tabindex="0"
         role="application"
-        aria-label="2D world. Player and target positions. Use arrow keys or WASD to move the player. Press O for offset, B for bearing, V for raw values."
+        aria-label="2D world. Player and target positions. Use arrow keys or WASD to move the player. Press O for offset, B for bearing, V for raw values. Use left and right bracket to decrease or increase ITD exaggeration."
       ></canvas>
     </section>
 
@@ -89,6 +109,7 @@
         <li><kbd>B</kbd> — announce bearing</li>
         <li><kbd>V</kbd> — announce raw audio values</li>
         <li><kbd>1</kbd> / <kbd>2</kbd> / <kbd>3</kbd> / <kbd>4</kbd> / <kbd>5</kbd> — toggle panning / ITD / low-pass / pulse rate / raw low-pass</li>
+        <li><kbd>[</kbd> / <kbd>]</kbd> — decrease / increase ITD exaggeration</li>
         <li><kbd>Enter</kbd> or <kbd>Space</kbd> — start or stop audio</li>
       </ul>
     </section>
@@ -124,7 +145,11 @@
       sometimes ambiguous side cue. Adding an inter-aural <em>time</em>
       difference (ITD) — the tiny delay before a sound reaches the far ear —
       makes left–right placement much more solid. Together, level and timing are
-      the classic duplex theory of localization.
+      the classic duplex theory of localization. The real ITD is only about
+      0.66 ms at most, and with no full head-related filtering behind it that can
+      be hard to hear in isolation, so an <em>exaggeration factor</em> (the ITD
+      tuning slider, or <kbd>[</kbd> / <kbd>]</kbd>) lets you scale it up until
+      the timing cue is obvious — 1× is physically accurate.
     </p>
 
     <h3>Up–down → low-pass filter (brightness)</h3>

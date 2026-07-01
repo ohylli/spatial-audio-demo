@@ -10,7 +10,7 @@
 // Coordinate convention: world y increases UP everywhere here; only render.js
 // flips y for the canvas.
 
-import { computeSpatial } from './spatial.js';
+import { computeSpatial, DEFAULTS } from './spatial.js';
 import { createWorld, movePlayer } from './world.js';
 import { createRenderer, draw } from './render.js';
 import { createAudioEngine } from './audio.js';
@@ -28,6 +28,8 @@ const canvas = document.getElementById('world-canvas');
 const startBtn = document.getElementById('start-btn');
 const startStatus = document.getElementById('start-status');
 const liveRegion = document.getElementById('live-region');
+const itdExagEl = document.getElementById('itd-exag');
+const itdExagValEl = document.getElementById('val-itd-exag');
 
 const toggleEls = {
   panning: document.getElementById('toggle-panning'),
@@ -63,8 +65,12 @@ const toggles = {
   pulse: toggleEls.pulse.checked,
 };
 
+// Mutable copy of the model constants; the ITD exaggeration slider/shortcut
+// writes into it and it is passed to computeSpatial each frame.
+const spatialConfig = { ...DEFAULTS, itdExaggeration: parseFloat(itdExagEl.value) };
+
 // Latest spatial solution, kept for the announcement shortcuts.
-let latest = computeSpatial(world.player, world.target);
+let latest = computeSpatial(world.player, world.target, spatialConfig);
 
 // --- Actions ----------------------------------------------------------------
 
@@ -113,6 +119,28 @@ const CUE_LABELS = {
 
 function announceToggle(cueName, on) {
   announcer.announce(`${CUE_LABELS[cueName]} ${on ? 'on' : 'off'}`);
+}
+
+// ITD exaggeration factor. Range/step come from the slider so there is a single
+// source of truth. setItdExag is the one path both the slider and the keyboard
+// shortcut go through, so they can never drift out of sync.
+const ITD_EXAG_MIN = parseFloat(itdExagEl.min);
+const ITD_EXAG_MAX = parseFloat(itdExagEl.max);
+const ITD_EXAG_STEP = parseFloat(itdExagEl.step);
+
+function setItdExag(value) {
+  let v = Math.min(ITD_EXAG_MAX, Math.max(ITD_EXAG_MIN, value));
+  // Snap to the step grid so slider and keyboard land on the same values.
+  v = Math.round(v / ITD_EXAG_STEP) * ITD_EXAG_STEP;
+  spatialConfig.itdExaggeration = v;
+  itdExagEl.value = String(v);
+  itdExagValEl.textContent = `${v.toFixed(2)}×`;
+  return v;
+}
+
+function adjustItdExag(dir) {
+  const v = setItdExag(spatialConfig.itdExaggeration + dir * ITD_EXAG_STEP);
+  announcer.announce(`ITD exaggeration ${v.toFixed(2)} times`);
 }
 
 // --- Announcement helpers ---------------------------------------------------
@@ -184,9 +212,13 @@ const input = setupInput(canvas, {
   onAnnounceOffset: announceOffset,
   onAnnounceBearing: announceBearing,
   onAnnounceValues: announceValues,
+  onAdjustItdExag: adjustItdExag,
 });
 
 startBtn.addEventListener('click', toggleAudio);
+
+// Live during drag; sighted interaction, so no announcement.
+itdExagEl.addEventListener('input', (e) => setItdExag(parseFloat(e.target.value)));
 
 for (const cueName of Object.keys(toggleEls)) {
   toggleEls[cueName].addEventListener('change', (e) => {
@@ -209,7 +241,7 @@ function frame(now) {
     movePlayer(world, move.x * MOVE_SPEED * dt, move.y * MOVE_SPEED * dt);
   }
 
-  const s = computeSpatial(world.player, world.target);
+  const s = computeSpatial(world.player, world.target, spatialConfig);
   latest = s;
 
   draw(renderer, world, s);
@@ -221,6 +253,7 @@ function frame(now) {
 
 // --- Startup ----------------------------------------------------------------
 
+setItdExag(spatialConfig.itdExaggeration);
 updateReadout(latest);
 draw(renderer, world, latest);
 

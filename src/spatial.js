@@ -9,6 +9,7 @@ export const DEFAULTS = {
   minGainDb: -60,
   headRadius: 0.0875,
   speedOfSound: 343,
+  itdExaggeration: 1,
   cutoffMin: 600,
   cutoffMax: 18000,
   cutoffRawFullDepth: 15,
@@ -47,12 +48,19 @@ export function distanceGain(distance, config = DEFAULTS) {
 // Horizontal unit component (ux) -> inter-aural time difference via the
 // Woodworth spherical-head model.
 //   theta = asin(clamp(ux, -1, 1))
-//   itdSeconds = (r / c) * (theta + sin(theta))
+//   itdSeconds = (r / c) * (theta + sin(theta)) * itdExaggeration
 // => { theta, itdSeconds }
+//
+// itdExaggeration is an intentional, non-physical perceptual-tuning knob. At the
+// default of 1 the ITD is physically accurate (max ~656 us at full left/right).
+// Because this is a decomposed model with no HRTF (no head-shadow spectral cues,
+// no pinna filtering) the true delay is perceptually faint on its own, so the UI
+// lets a listener scale it up to hear the cue clearly.
 export function computeItd(ux, config = DEFAULTS) {
-  const { headRadius, speedOfSound } = config;
+  const { headRadius, speedOfSound, itdExaggeration = 1 } = config;
   const theta = Math.asin(clamp(ux, -1, 1));
-  const itdSeconds = (headRadius / speedOfSound) * (theta + Math.sin(theta));
+  const itdSeconds =
+    (headRadius / speedOfSound) * (theta + Math.sin(theta)) * itdExaggeration;
   return { theta, itdSeconds };
 }
 

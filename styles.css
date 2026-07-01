@@ -170,6 +170,43 @@ legend {
   accent-color: var(--accent);
 }
 
+/* ITD exaggeration tuning: label on top, full-width slider, factor readout. */
+.itd-tuning label {
+  display: block;
+  cursor: pointer;
+}
+
+.itd-tuning .cue-name,
+.itd-tuning .cue-desc {
+  display: block;
+}
+
+.itd-tuning .cue-name {
+  font-weight: 600;
+}
+
+.itd-tuning kbd {
+  font-size: 0.85em;
+}
+
+.itd-tuning input[type="range"] {
+  display: block;
+  width: 100%;
+  margin-top: 0.6rem;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.itd-tuning output {
+  display: block;
+  margin-top: 0.4rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+
 /* Strong, obvious focus indicator for keyboard users. */
 :focus-visible {
   outline: 3px solid var(--accent);
