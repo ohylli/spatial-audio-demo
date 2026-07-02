@@ -10,6 +10,7 @@ export const DEFAULTS = {
   headRadius: 0.0875,
   speedOfSound: 343,
   itdExaggeration: 1,
+  panRawFullWidth: 15,
   cutoffMin: 600,
   cutoffMax: 18000,
   cutoffRawFullDepth: 15,
@@ -64,6 +65,17 @@ export function computeItd(ux, config = DEFAULTS) {
   return { theta, itdSeconds };
 }
 
+// Raw horizontal offset (dx, world units) -> horizontal source unit in [-1, 1],
+// hard-clamped at +/- panRawFullWidth. Unlike ux this keeps absolute horizontal
+// displacement rather than bearing: as the player closes the horizontal gap the
+// value drifts toward center even if the target stays off to one side. Feeds both
+// the ILD pan and (via computeItd) the ITD in the raw horizontal mode.
+// => hRaw (number in [-1, 1])
+export function panFromDx(dx, config = DEFAULTS) {
+  const { panRawFullWidth } = config;
+  return clamp(dx / panRawFullWidth, -1, 1);
+}
+
 // Vertical unit component (uy) -> low-pass cutoff frequency.
 // Only the below-player half (uy in [-1, 0]) is mapped onto
 // [cutoffMin, cutoffMax]; uy >= 0 stays fully bright at cutoffMax.
@@ -88,8 +100,14 @@ export function cutoffFromDy(dy, config = DEFAULTS) {
   return cutoffMin + t * (cutoffMax - cutoffMin);
 }
 
-// Full spatial solution for a player/target pair.
-// => { dx, dy, distance, ux, uy, gainDb, gainLinear, pan, theta, itdSeconds, cutoffHz, cutoffRawHz }
+// Full spatial solution for a player/target pair. The horizontal cues (pan, ITD)
+// are provided in two flavors so a listener can A/B them live: the angle-based
+// pair (pan/theta/itdSeconds, from ux) and the raw-offset pair
+// (panRaw/thetaRaw/itdRawSeconds, from dx). The vertical low-pass has the same
+// angle-vs-raw split (cutoffHz vs cutoffRawHz).
+// => { dx, dy, distance, ux, uy, gainDb, gainLinear,
+//      pan, theta, itdSeconds, panRaw, thetaRaw, itdRawSeconds,
+//      cutoffHz, cutoffRawHz }
 export function computeSpatial(player, target, config = DEFAULTS) {
   const { dx, dy, distance } = offsets(player, target);
 
@@ -107,6 +125,9 @@ export function computeSpatial(player, target, config = DEFAULTS) {
       pan: 0,
       theta: 0,
       itdSeconds: 0,
+      panRaw: 0,
+      thetaRaw: 0,
+      itdRawSeconds: 0,
       cutoffHz: config.cutoffMax,
       cutoffRawHz: config.cutoffMax,
     };
@@ -115,8 +136,11 @@ export function computeSpatial(player, target, config = DEFAULTS) {
   const ux = dx / distance;
   const uy = dy / distance;
 
+  const hRaw = panFromDx(dx, config);
+
   const { gainDb, gainLinear } = distanceGain(distance, config);
-  const { theta, itdSeconds } = computeItd(ux, config);
+  const { theta, itdSeconds } = computeItd(ux, config); // angle-based horizontal
+  const { theta: thetaRaw, itdSeconds: itdRawSeconds } = computeItd(hRaw, config);
   const cutoffHz = cutoffFromUy(uy, config);
   const cutoffRawHz = cutoffFromDy(dy, config);
 
@@ -131,6 +155,9 @@ export function computeSpatial(player, target, config = DEFAULTS) {
     pan: ux,
     theta,
     itdSeconds,
+    panRaw: hRaw,
+    thetaRaw,
+    itdRawSeconds,
     cutoffHz,
     cutoffRawHz,
   };

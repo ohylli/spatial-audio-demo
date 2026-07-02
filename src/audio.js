@@ -169,19 +169,24 @@ export function createAudioEngine() {
       const panning = toggles.panning !== false;
       const itd = toggles.itd !== false;
       const lowpassOn = toggles.lowpass !== false;
+      // Raw horizontal sub-mode swaps the angle-based source (ux) for the raw
+      // offset (dx) for BOTH horizontal cues below, so pan and ITD stay in sync.
+      const horizontalRaw = toggles.horizontalRaw === true;
 
       // Distance -> loudness.
       masterGain.gain.setTargetAtTime(spatial.gainLinear, now, SMOOTH_TC);
 
       // Horizontal -> constant-power ILD. Off => dead center (equal power).
-      const pan = panning ? spatial.pan : 0;
+      const activePan = horizontalRaw ? spatial.panRaw : spatial.pan;
+      const pan = panning ? activePan : 0;
       const gains = panToGains(pan);
       leftGain.gain.setTargetAtTime(gains.left, now, SMOOTH_TC);
       rightGain.gain.setTargetAtTime(gains.right, now, SMOOTH_TC);
 
       // Horizontal -> ITD via base-delay bias. Off => zero difference (both = base).
       // Positive itdSeconds (target to the right) lags the far (left) ear.
-      const itdSec = itd ? spatial.itdSeconds : 0;
+      const activeItd = horizontalRaw ? spatial.itdRawSeconds : spatial.itdSeconds;
+      const itdSec = itd ? activeItd : 0;
       const ld = BASE_DELAY + itdSec / 2;
       const rd = BASE_DELAY - itdSec / 2;
       leftDelay.delayTime.setTargetAtTime(Math.max(0, ld), now, SMOOTH_TC);

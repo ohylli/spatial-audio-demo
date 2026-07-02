@@ -36,6 +36,7 @@ const toggleEls = {
   itd: document.getElementById('toggle-itd'),
   lowpass: document.getElementById('toggle-lowpass'),
   lowpassRaw: document.getElementById('toggle-lowpass-raw'),
+  horizontalRaw: document.getElementById('toggle-horizontal-raw'),
   pulse: document.getElementById('toggle-pulse'),
 };
 
@@ -62,6 +63,7 @@ const toggles = {
   itd: toggleEls.itd.checked,
   lowpass: toggleEls.lowpass.checked,
   lowpassRaw: toggleEls.lowpassRaw.checked,
+  horizontalRaw: toggleEls.horizontalRaw.checked,
   pulse: toggleEls.pulse.checked,
 };
 
@@ -114,6 +116,7 @@ const CUE_LABELS = {
   itd: 'ITD',
   lowpass: 'Low-pass filter',
   lowpassRaw: 'Low-pass raw mode',
+  horizontalRaw: 'Horizontal raw mode',
   pulse: 'Pulse rate',
 };
 
@@ -176,6 +179,17 @@ function announceBearing() {
   );
 }
 
+// The horizontal cues actually being heard depend on the horizontal mode: raw
+// mode uses the dx-based source, otherwise the angle-based ux source. Both pan
+// and ITD follow the same toggle so they stay consistent.
+function activePan(s) {
+  return toggles.horizontalRaw ? s.panRaw : s.pan;
+}
+
+function activeItdSeconds(s) {
+  return toggles.horizontalRaw ? s.itdRawSeconds : s.itdSeconds;
+}
+
 // The cutoff actually being heard depends on the low-pass mode: raw mode uses
 // the distance-independent dy mapping, otherwise the angle-based uy mapping.
 function activeCutoff(s) {
@@ -183,10 +197,10 @@ function activeCutoff(s) {
 }
 
 function announceValues() {
-  const itdUs = Math.round(latest.itdSeconds * 1e6);
+  const itdUs = Math.round(activeItdSeconds(latest) * 1e6);
   announcer.announce(
     `Gain ${latest.gainDb.toFixed(1)} decibels. ` +
-      `Pan ${latest.pan.toFixed(2)}. ` +
+      `Pan ${activePan(latest).toFixed(2)}. ` +
       `ITD ${itdUs} microseconds. ` +
       `Cutoff ${Math.round(activeCutoff(latest))} hertz.`
   );
@@ -199,8 +213,8 @@ function updateReadout(s) {
   valEls.dx.textContent = s.dx.toFixed(1);
   valEls.dy.textContent = s.dy.toFixed(1);
   valEls.gain.textContent = `${s.gainDb.toFixed(1)} dB`;
-  valEls.pan.textContent = s.pan.toFixed(2);
-  valEls.itd.textContent = `${Math.round(s.itdSeconds * 1e6)} us`;
+  valEls.pan.textContent = activePan(s).toFixed(2);
+  valEls.itd.textContent = `${Math.round(activeItdSeconds(s) * 1e6)} us`;
   valEls.cutoff.textContent = `${Math.round(activeCutoff(s))} Hz`;
 }
 

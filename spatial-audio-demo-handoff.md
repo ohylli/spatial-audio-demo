@@ -115,6 +115,25 @@ Because this is a decomposed model with no full HRTF behind the delay, that phys
 up until it is clearly audible; at 1 the value stays physically accurate. Keep it well below
 ~15x so the per-ear delay bias (base +/- ITD/2, base = 5 ms) never clamps at zero.
 
+Raw horizontal variant. Just as the low-pass exposes an angle-vs-raw A/B (below), the
+horizontal axis ships one too, as a runtime toggle ("Horizontal: raw mode", key `6`). The
+raw source is `panFromDx(dx)` in `spatial.js`: it maps raw horizontal offset `dx` (ignoring
+distance) to a horizontal unit in [-1, 1], hard-clamped at `+/- panRawFullWidth` (default 15
+world units). This single value feeds **both** horizontal cues — the ILD pan directly, and
+the ITD through the same `computeItd` (so `theta = asin(hRaw)`) — so the two stay consistent.
+The two sources differ in what they depend on. Angle `ux = dx/distance` encodes pure bearing:
+it ignores how far away the target is, so a target due right (dy = 0) pans hard-right at every
+distance, and a target with the same `dx` but far above/below pans much closer to center
+(because the bearing points mostly up/down). Raw `dx/panRawFullWidth` ignores the vertical
+component instead: the same horizontal offset pans the same whether the target is level with
+the player or far above, growing with `|dx|` and saturating past `panRawFullWidth`.
+`computeSpatial` returns both flavors — `pan`/`theta`/`itdSeconds` (angle) and
+`panRaw`/`thetaRaw`/`itdRawSeconds` (raw) — and the consumers (`audio.js`, the readout, the
+announcement) select which is active from the toggle. Because it drives pan and ITD, the raw
+mode is a *horizontal-source* switch, not a sub-mode of the panning toggle: it affects the
+sound whenever either the pan or the ITD cue is on. At `|dx| >= panRawFullWidth` it saturates
+to full left/right, reaching the same extremes as the angle source at the side.
+
 ### 3. Vertical (uy) -> low-pass cutoff
 
 Map uy to a low-pass cutoff frequency. At or above the player (uy >= 0) the sound is fully

@@ -13,6 +13,7 @@
 //   v -> onAnnounceValues()
 //   1 -> onToggle('panning')    2 -> onToggle('itd')    3 -> onToggle('lowpass')
 //   4 -> onToggle('pulse')      5 -> onToggle('lowpassRaw')
+//   6 -> onToggle('horizontalRaw')
 //   [ -> onAdjustItdExag(-1)    ] -> onAdjustItdExag(+1)   (auto-repeat allowed)
 //   Enter / Space -> onStart()
 
@@ -42,6 +43,7 @@ const TOGGLE_KEYS = {
   3: 'lowpass',
   4: 'pulse',
   5: 'lowpassRaw',
+  6: 'horizontalRaw',
 };
 
 // key id -> ITD-exaggeration step direction. Auto-repeat is allowed for these so
