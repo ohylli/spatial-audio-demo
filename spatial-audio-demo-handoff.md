@@ -336,4 +336,4 @@ Hosting gotchas:
 5. Pulsed broadband source and optional pulse-rate proximity cue.
 6. ARIA live region and announcement shortcuts.
 7. Per-cue isolation toggles and the live value display.
-8. Optional: HRTF PannerNode comparison mode.
+8. Optional: HRTF PannerNode comparison mode. 
