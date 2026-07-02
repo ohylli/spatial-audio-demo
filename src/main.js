@@ -32,6 +32,7 @@ const itdExagEl = document.getElementById('itd-exag');
 const itdExagValEl = document.getElementById('val-itd-exag');
 
 const toggleEls = {
+  distance: document.getElementById('toggle-distance'),
   panning: document.getElementById('toggle-panning'),
   itd: document.getElementById('toggle-itd'),
   lowpass: document.getElementById('toggle-lowpass'),
@@ -59,6 +60,7 @@ const announcer = createAnnouncer(liveRegion);
 
 // Toggle state mirrors the checkboxes; passed to engine.update each frame.
 const toggles = {
+  distance: toggleEls.distance.checked,
   panning: toggleEls.panning.checked,
   itd: toggleEls.itd.checked,
   lowpass: toggleEls.lowpass.checked,
@@ -112,6 +114,7 @@ function toggleCue(cueName) {
 }
 
 const CUE_LABELS = {
+  distance: 'Distance loudness',
   panning: 'Panning',
   itd: 'ITD',
   lowpass: 'Low-pass filter',

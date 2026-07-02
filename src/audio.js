@@ -162,10 +162,11 @@ export function createAudioEngine() {
     },
 
     // Apply the current spatial values with smoothing. toggles neutralize a cue
-    // cleanly when off: panning -> center, itd -> zero delay difference, lowpass
-    // -> cutoff wide open.
+    // cleanly when off: distance -> unity gain (full, unattenuated loudness),
+    // panning -> center, itd -> zero delay difference, lowpass -> cutoff wide open.
     update(spatial, toggles = {}) {
       const now = context.currentTime;
+      const distanceOn = toggles.distance !== false;
       const panning = toggles.panning !== false;
       const itd = toggles.itd !== false;
       const lowpassOn = toggles.lowpass !== false;
@@ -173,8 +174,8 @@ export function createAudioEngine() {
       // offset (dx) for BOTH horizontal cues below, so pan and ITD stay in sync.
       const horizontalRaw = toggles.horizontalRaw === true;
 
-      // Distance -> loudness.
-      masterGain.gain.setTargetAtTime(spatial.gainLinear, now, SMOOTH_TC);
+      // Distance -> loudness. Off => unity gain (0 dB, reference-distance loudness).
+      masterGain.gain.setTargetAtTime(distanceOn ? spatial.gainLinear : 1, now, SMOOTH_TC);
 
       // Horizontal -> constant-power ILD. Off => dead center (equal power).
       const activePan = horizontalRaw ? spatial.panRaw : spatial.pan;
